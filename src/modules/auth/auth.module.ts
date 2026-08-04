@@ -12,12 +12,19 @@ import { AuditLogModule } from '../../common/services/audit-log.module';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('auth.jwtAccessSecret'),
-        signOptions: {
-          expiresIn: configService.get<string>('auth.jwtAccessExpiresIn'),
-        },
-      }),
+      useFactory: (configService: ConfigService) => {
+        const accessSecret =
+          configService.get<string>('auth.jwtAccessSecret') || 'change-me-access-secret';
+        const accessExpiresIn =
+          configService.get<string>('auth.jwtAccessExpiresIn') || '15m';
+
+        return {
+          secret: accessSecret,
+          signOptions: {
+            expiresIn: accessExpiresIn as any,
+          },
+        };
+      },
       inject: [ConfigService],
     }),
     AuditLogModule,

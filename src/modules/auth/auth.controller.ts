@@ -11,7 +11,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto, RefreshTokenDto } from './dto/auth.dto';
 import { Public, CurrentUser } from '../../common/decorators';
