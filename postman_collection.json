@@ -1,0 +1,1230 @@
+{
+  "info": {
+    "name": "Ticket App API",
+    "description": "Postman collection for the NestJS ticket-booking project. Import this collection and run the auth flow first to populate the bearer token.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userPublicId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "stationPublicId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "routePublicId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "trainPublicId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "schedulePublicId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bookingCode",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "paymentReference",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ticketNumber",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "idempotencyKey",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Elang Akbar\",\n  \"email\": \"elang@example.com\",\n  \"password\": \"StrongPassword123!\",\n  \"phoneNumber\": \"081234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json?.data?.user?.publicId) pm.collectionVariables.set('userPublicId', json.data.user.publicId);",
+                  "if (json?.data?.accessToken) pm.collectionVariables.set('accessToken', json.data.accessToken);",
+                  "if (json?.data?.refreshToken) pm.collectionVariables.set('refreshToken', json.data.refreshToken);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"elang@example.com\",\n  \"password\": \"StrongPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json?.data?.user?.publicId) pm.collectionVariables.set('userPublicId', json.data.user.publicId);",
+                  "if (json?.data?.accessToken) pm.collectionVariables.set('accessToken', json.data.accessToken);",
+                  "if (json?.data?.refreshToken) pm.collectionVariables.set('refreshToken', json.data.refreshToken);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh-token"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User By Public Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userPublicId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userPublicId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Elang Akbar Update\",\n  \"phoneNumber\": \"081234567891\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userPublicId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userPublicId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update User Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userPublicId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userPublicId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Soft Delete User (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userPublicId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userPublicId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stations",
+      "item": [
+        {
+          "name": "List Stations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stations?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["stations"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Station By Public Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stations/{{stationPublicId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["stations", "{{stationPublicId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Station (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"GMR\",\n  \"name\": \"Gambir\",\n  \"city\": \"Jakarta\",\n  \"province\": \"DKI Jakarta\",\n  \"address\": \"Jl. Stasiun Gambir No. 1\",\n  \"timezone\": \"Asia/Jakarta\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/stations",
+              "host": ["{{baseUrl}}"],
+              "path": ["stations"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json?.data?.publicId) pm.collectionVariables.set('stationPublicId', json.data.publicId);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Station (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Gambir Updated\",\n  \"city\": \"Jakarta\",\n  \"province\": \"DKI Jakarta\",\n  \"address\": \"Updated address\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/stations/{{stationPublicId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["stations", "{{stationPublicId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Station (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/stations/{{stationPublicId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["stations", "{{stationPublicId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Trains",
+      "item": [
+        {
+          "name": "List Trains",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/trains?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["trains"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Train By Public Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/trains/{{trainPublicId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["trains", "{{trainPublicId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Train (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"trainCode\": \"KA-101\",\n  \"name\": \"Argo Bromo Anggrek\",\n  \"trainClass\": \"EXECUTIVE\",\n  \"totalSeats\": 40\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/trains",
+              "host": ["{{baseUrl}}"],
+              "path": ["trains"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json?.data?.publicId) pm.collectionVariables.set('trainPublicId', json.data.publicId);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Train (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Argo Bromo Anggrek Updated\",\n  \"trainClass\": \"EXECUTIVE\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/trains/{{trainPublicId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["trains", "{{trainPublicId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Train (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/trains/{{trainPublicId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["trains", "{{trainPublicId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Routes",
+      "item": [
+        {
+          "name": "List Routes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/routes?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["routes"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Route By Public Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/routes/{{routePublicId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["routes", "{{routePublicId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Route (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"routeCode\": \"GMR-BD\",\n  \"originStationPublicId\": \"{{stationPublicId}}\",\n  \"destinationStationPublicId\": \"{{stationPublicId}}\",\n  \"distanceKm\": 150.5,\n  \"estimatedDurationMinutes\": 120\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/routes",
+              "host": ["{{baseUrl}}"],
+              "path": ["routes"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json?.data?.publicId) pm.collectionVariables.set('routePublicId', json.data.publicId);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Route (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"distanceKm\": 155.2,\n  \"estimatedDurationMinutes\": 125,\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/routes/{{routePublicId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["routes", "{{routePublicId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Route (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/routes/{{routePublicId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["routes", "{{routePublicId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Seats",
+      "item": [
+        {
+          "name": "List Seats For Train",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/trains/{{trainPublicId}}/seats",
+              "host": ["{{baseUrl}}"],
+              "path": ["trains", "{{trainPublicId}}", "seats"]
+            }
+          }
+        },
+        {
+          "name": "Create Seat (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"carriageNumber\": 1,\n  \"seatNumber\": \"A1\",\n  \"seatClass\": \"EXECUTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/trains/{{trainPublicId}}/seats",
+              "host": ["{{baseUrl}}"],
+              "path": ["trains", "{{trainPublicId}}", "seats"]
+            }
+          }
+        },
+        {
+          "name": "Bulk Create Seats (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"seats\": [\n    {\n      \"carriageNumber\": 1,\n      \"seatNumber\": \"A2\",\n      \"seatClass\": \"EXECUTIVE\"\n    },\n    {\n      \"carriageNumber\": 1,\n      \"seatNumber\": \"A3\",\n      \"seatClass\": \"EXECUTIVE\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/trains/{{trainPublicId}}/seats/bulk",
+              "host": ["{{baseUrl}}"],
+              "path": ["trains", "{{trainPublicId}}", "seats", "bulk"]
+            }
+          }
+        },
+        {
+          "name": "Generate Seats (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"carriages\": 2,\n  \"seatsPerCarriage\": 10,\n  \"seatClass\": \"ECONOMY\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/trains/{{trainPublicId}}/seats/generate",
+              "host": ["{{baseUrl}}"],
+              "path": ["trains", "{{trainPublicId}}", "seats", "generate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Schedules",
+      "item": [
+        {
+          "name": "Search Schedules",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/schedules?originStation=GMR&destinationStation=BD&departureDate=2026-08-10&trainClass=ECONOMY&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["schedules"],
+              "query": [
+                { "key": "originStation", "value": "GMR" },
+                { "key": "destinationStation", "value": "BD" },
+                { "key": "departureDate", "value": "2026-08-10" },
+                { "key": "trainClass", "value": "ECONOMY" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Schedule By Public Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/schedules/{{schedulePublicId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["schedules", "{{schedulePublicId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Seat Availability For Schedule",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/schedules/{{schedulePublicId}}/seats",
+              "host": ["{{baseUrl}}"],
+              "path": ["schedules", "{{schedulePublicId}}", "seats"]
+            }
+          }
+        },
+        {
+          "name": "Create Schedule (Admin/Operator)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scheduleCode\": \"SCH-001\",\n  \"trainPublicId\": \"{{trainPublicId}}\",\n  \"routePublicId\": \"{{routePublicId}}\",\n  \"departureTime\": \"2026-08-10T08:00:00.000Z\",\n  \"arrivalTime\": \"2026-08-10T12:00:00.000Z\",\n  \"basePrice\": 250000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/schedules",
+              "host": ["{{baseUrl}}"],
+              "path": ["schedules"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json?.data?.publicId) pm.collectionVariables.set('schedulePublicId', json.data.publicId);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Schedule (Admin/Operator)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"departureTime\": \"2026-08-10T09:00:00.000Z\",\n  \"arrivalTime\": \"2026-08-10T13:00:00.000Z\",\n  \"basePrice\": 275000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/schedules/{{schedulePublicId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["schedules", "{{schedulePublicId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Schedule Status (Admin/Operator)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"SCHEDULED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/schedules/{{schedulePublicId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["schedules", "{{schedulePublicId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Delete Schedule (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/schedules/{{schedulePublicId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["schedules", "{{schedulePublicId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "Create Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schedulePublicId\": \"{{schedulePublicId}}\",\n  \"seats\": [\n    {\n      \"seatPublicId\": \"SEAT-1\",\n      \"passenger\": {\n        \"fullName\": \"Elang Akbar\",\n        \"identityType\": \"KTP\",\n        \"identityNumber\": \"3174000000000001\",\n        \"dateOfBirth\": \"1998-01-01\",\n        \"passengerType\": \"ADULT\"\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json?.data?.bookingCode) pm.collectionVariables.set('bookingCode', json.data.bookingCode);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Booking By Code",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingCode}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingCode}}"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Booking",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"User cancelled booking\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingCode}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingCode}}", "cancel"]
+            }
+          }
+        },
+        {
+          "name": "Add Passenger To Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passenger\": {\n    \"fullName\": \"Ayu Sari\",\n    \"identityType\": \"KTP\",\n    \"identityNumber\": \"3174000000000002\",\n    \"dateOfBirth\": \"2000-02-02\",\n    \"passengerType\": \"ADULT\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingCode}}/passengers",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingCode}}", "passengers"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": \"BANK_TRANSFER\",\n  \"amount\": 250000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingCode}}/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingCode}}", "payments"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json?.data?.paymentReference) pm.collectionVariables.set('paymentReference', json.data.paymentReference);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Payment By Reference",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/{{paymentReference}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "{{paymentReference}}"]
+            }
+          }
+        },
+        {
+          "name": "Confirm Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idempotencyKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/{{paymentReference}}/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "{{paymentReference}}", "confirm"]
+            }
+          }
+        },
+        {
+          "name": "Fail Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/{{paymentReference}}/fail",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "{{paymentReference}}", "fail"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tickets",
+      "item": [
+        {
+          "name": "List Tickets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tickets?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Ticket By Number",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{ticketNumber}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets", "{{ticketNumber}}"]
+            }
+          }
+        },
+        {
+          "name": "Mark Ticket As Used (Admin/Operator)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{ticketNumber}}/use",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets", "{{ticketNumber}}", "use"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Dashboard Summary (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "summary"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
