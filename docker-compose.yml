@@ -1,0 +1,47 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ticket-app
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - '3001:3000'
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      API_PREFIX: api
+      API_VERSION: v1
+      CORS_ORIGINS: http://localhost:3000
+      SWAGGER_ENABLED: 'true'
+      BOOKING_HOLD_MINUTES: 10
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/ticket_app?schema=public
+      JWT_ACCESS_SECRET: change-me-access-secret
+      JWT_ACCESS_EXPIRES_IN: 15m
+      JWT_REFRESH_SECRET: change-me-refresh-secret
+      JWT_REFRESH_EXPIRES_IN: 7d
+      BCRYPT_SALT_ROUNDS: 12
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    container_name: ticket-app-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ticket_app
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d ticket_app']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
