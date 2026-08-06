@@ -14,16 +14,25 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('auth.jwtAccessSecret') || 'change-me-access-secret',
+      secretOrKey:
+        configService.get<string>('auth.jwtAccessSecret') ||
+        'change-me-access-secret',
     });
   }
 
   async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
-    const user = await this.prisma.user.findFirst({
-      where: { publicId: payload.sub, isActive: true, deletedAt: null },
+    // 1. Guard clause jika payload atau sub tidak ada
+    if (!payload || !payload.sub) {
+      throw new UnauthorizedException('Invalid token payload');
+    }
+
+    // 2. Gunakan findUnique jika publicId adalah field @unique di Prisma Schema
+    const user = await this.prisma.user.findUnique({
+      where: { publicId: payload.sub },
     });
 
-    if (!user) {
+    // 3. Pengecekan eksplisit status user
+    if (!user || !user.isActive || user.deletedAt !== null) {
       throw new UnauthorizedException('User not found or inactive');
     }
 
