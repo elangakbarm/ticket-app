@@ -31,6 +31,23 @@
 $ npm install
 ```
 
+## Local PostgreSQL setup
+
+This project now targets a local PostgreSQL instance by default. Make sure PostgreSQL is running on your machine and that a database named `ticket_app` exists.
+
+Example connection string:
+
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ticket_app?schema=public
+```
+
+Then run Prisma migrations:
+
+```bash
+$ npx prisma migrate deploy
+$ npx prisma generate
+```
+
 ## Compile and run the project
 
 ```bash

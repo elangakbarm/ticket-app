@@ -2,6 +2,12 @@ import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { registerAs } from '@nestjs/config';
 
+const DEFAULT_DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/ticket_app?schema=public';
+
+function getDatabaseUrl(): string {
+  return process.env.DATABASE_URL || DEFAULT_DATABASE_URL;
+}
+
 export const appConfig = registerAs('app', () => ({
   nodeEnv: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '3000', 10),
@@ -21,15 +27,16 @@ export const authConfig = registerAs('auth', () => ({
 }));
 
 export const databaseConfig = registerAs('database', () => ({
-  url: process.env.DATABASE_URL,
+  url: getDatabaseUrl(),
 }));
 
 export async function validateEnv(config: Record<string, unknown>) {
-  const requiredVars = [
-    'DATABASE_URL',
-    'JWT_ACCESS_SECRET',
-    'JWT_REFRESH_SECRET',
-  ];
+  const databaseUrl = (config['DATABASE_URL'] as string | undefined) ?? process.env.DATABASE_URL ?? getDatabaseUrl();
+  if (databaseUrl) {
+    config['DATABASE_URL'] = databaseUrl;
+  }
+
+  const requiredVars = ['JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET'];
 
   const missing = requiredVars.filter((key) => !config[key] && !process.env[key]);
   if (missing.length > 0) {
