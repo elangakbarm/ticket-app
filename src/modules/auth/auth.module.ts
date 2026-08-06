@@ -6,9 +6,11 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuditLogModule } from '../../common/services/audit-log.module';
-
+import { PrismaModule } from '../../database/prisma.module'; 
 @Module({
   imports: [
+    ConfigModule, 
+    PrismaModule, 
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -31,6 +33,11 @@ import { AuditLogModule } from '../../common/services/audit-log.module';
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
-  exports: [AuthService, JwtStrategy],
+  exports: [
+    AuthService, 
+    JwtStrategy, 
+    PassportModule, // Memungkinkan module lain menggunakan AuthGuard('jwt')
+    JwtModule,       // Memungkinkan module lain menggunakan JwtService jika dibutuhkan
+  ],
 })
 export class AuthModule {}
