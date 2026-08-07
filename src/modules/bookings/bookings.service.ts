@@ -422,7 +422,7 @@ export class BookingsService {
     };
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_HOUR)
   async expirePendingBookings() {
     this.logger.log('Running booking expiration job');
 
