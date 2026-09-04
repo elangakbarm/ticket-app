@@ -35,6 +35,8 @@ spec:
           value: "your-access-secret"
         - name: JWT_REFRESH_SECRET
           value: "your-refresh-secret"
+        - name: SWAGGER_ENABLED
+          value: "true"
 
 ---
 apiVersion: v1
