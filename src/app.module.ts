@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { appConfig, authConfig, databaseConfig, validateEnv } from './config/app.config';
@@ -17,8 +16,7 @@ import { RoutesModule } from './modules/routes/routes.module';
 import { TrainsModule } from './modules/trains/trains.module';
 import { SeatsModule } from './modules/seats/seats.module';
 import { SchedulesModule } from './modules/schedules/schedules.module';
-import { BookingsModule } from './modules/bookings/bookings.module';
-import { PaymentsModule } from './modules/payments/payments.module';
+import { ServiceGatewayModule } from './modules/service-gateway/service-gateway.module';
 import { TicketsModule } from './modules/tickets/tickets.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { HealthModule } from './modules/health/health.module';
@@ -30,7 +28,6 @@ import { HealthModule } from './modules/health/health.module';
       load: [appConfig, authConfig, databaseConfig],
       validate: validateEnv,
     }),
-    ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
     PrismaModule,
     AuthModule,
@@ -40,8 +37,7 @@ import { HealthModule } from './modules/health/health.module';
     TrainsModule,
     SeatsModule,
     SchedulesModule,
-    BookingsModule,
-    PaymentsModule,
+    ServiceGatewayModule,
     TicketsModule,
     DashboardModule,
     HealthModule,

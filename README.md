@@ -23,6 +23,11 @@
 
 ## Description
 
+Bookings and payments now run as separate services. Follow the
+[three-app setup and API walkthrough](docs/services-quickstart.md) to start them
+and call both through ticket-app. Restart ticket-app after upgrading to disable
+its original booking/payment handlers and booking scheduler.
+
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
 ## Project setup
