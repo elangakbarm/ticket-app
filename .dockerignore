@@ -8,3 +8,4 @@ npm-debug.log
 README.md
 postman
 docs
+*.tsbuildinfo

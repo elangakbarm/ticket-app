@@ -30,6 +30,10 @@ its original booking/payment handlers and booking scheduler.
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Docker Desktop
+
+Run all three apps and PostgreSQL using [the local Docker setup](docs/docker-local.md).
+
 ## Project setup
 
 ```bash
