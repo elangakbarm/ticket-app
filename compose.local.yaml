@@ -1,0 +1,66 @@
+name: ticket-local
+
+x-env: &common-env
+  NODE_ENV: development
+  DATABASE_URL: ${DOCKER_DATABASE_URL:-postgresql://postgres:postgres@host.docker.internal:5432/ticket_app?schema=public}
+  JWT_ACCESS_SECRET: local-development-access-secret-change-before-deployment
+  SWAGGER_ENABLED: 'true'
+  CORS_ORIGINS: http://localhost:3000,http://localhost:5173,http://localhost:4200
+
+services:
+  migrate:
+    build: .
+    image: ticket-local-app
+    environment: *common-env
+    command: [npx, prisma, migrate, deploy]
+    restart: 'no'
+
+  app:
+    pull_policy: never
+    image: ticket-local-app
+    environment:
+      <<: *common-env
+      PORT: 3000
+      API_PREFIX: api
+      API_VERSION: v1
+      JWT_REFRESH_SECRET: local-development-refresh-secret-change-before-deployment
+      JWT_ACCESS_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+      BCRYPT_SALT_ROUNDS: 12
+      BOOKINGS_SERVICE_URL: http://bookings:3002/api/v1
+      PAYMENTS_SERVICE_URL: http://payments:3001/api/v1
+      SERVICE_HTTP_TIMEOUT_MS: 20000
+    ports: ['127.0.0.1:3000:3000']
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      bookings:
+        condition: service_started
+      payments:
+        condition: service_started
+    restart: unless-stopped
+
+  bookings:
+    build: ../ticket-service-bookings
+    environment:
+      <<: *common-env
+      PORT: 3002
+      BOOKING_HOLD_MINUTES: 10
+    ports: ['127.0.0.1:3002:3002']
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  payments:
+    build: ../ticket-service-payments
+    environment:
+      <<: *common-env
+      PORT: 3001
+    ports: ['127.0.0.1:3001:3001']
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+

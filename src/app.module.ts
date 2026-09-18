@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { appConfig, authConfig, databaseConfig, validateEnv } from './config/app.config';
+import { createThrottlerOptions } from './config/throttler.config';
 import { PrismaModule } from './database/prisma.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
@@ -28,7 +29,11 @@ import { HealthModule } from './modules/health/health.module';
       load: [appConfig, authConfig, databaseConfig],
       validate: validateEnv,
     }),
-    ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: createThrottlerOptions,
+    }),
     PrismaModule,
     AuthModule,
     UsersModule,

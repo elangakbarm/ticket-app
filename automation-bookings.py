@@ -19,8 +19,8 @@ from typing import Any
 import requests
 
 
-DEFAULT_BASE_URL = "http://172.31.20.206:30001/api/v1"
-
+## DEFAULT_BASE_URL = "http://172.31.20.206:30001/api/v1"
+DEFAULT_BASE_URL = "http://localhost:3000/api/v1"
 
 class AutomationError(RuntimeError):
     pass

@@ -1,23 +1,21 @@
-# syntax=docker/dockerfile:1
-
-FROM node:20-alpine
+FROM node:22-bookworm-slim AS build
+RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-
-ENV NODE_ENV=development
-ENV PORT=3000
-ENV DATABASE_URL=postgresql://postgres:postgres@db:5432/ticket_app?schema=public
-
 COPY package*.json ./
-RUN npm install
+RUN npm ci
+COPY . .
+RUN DATABASE_URL=postgresql://unused:unused@localhost:5432/unused npm run prisma:generate
+RUN npm run build && test -f dist/main.js
 
-COPY prisma ./prisma
-COPY prisma.config.ts ./
-COPY tsconfig*.json ./
-COPY src ./src
-COPY nest-cli.json ./
-
-RUN npx prisma generate
-
+FROM node:22-bookworm-slim
+RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
+ENV NODE_ENV=production
+WORKDIR /app
+COPY --from=build /app/package*.json ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/prisma ./prisma
+COPY --from=build /app/prisma.config.ts ./
+USER node
 EXPOSE 3000
-
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:dev"]
+CMD ["node", "dist/main.js"]
