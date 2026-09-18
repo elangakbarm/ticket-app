@@ -1,15 +1,5 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  Req,
-  UseGuards,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
+import { Controller, Post, Get, Body, Req, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
 import type { Request } from 'express';
 import { AuthService } from './auth.service';
@@ -26,11 +16,7 @@ export class AuthController {
   @Post('register')
   @ApiOperation({ summary: 'Register a new customer account' })
   async register(@Body() dto: RegisterDto, @Req() req: Request) {
-    return this.authService.register(
-      dto,
-      req.ip,
-      req.headers['user-agent'],
-    );
+    return this.authService.register(dto, req.ip, req.headers['user-agent']);
   }
 
   @Public()
@@ -52,7 +38,6 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Logout and revoke refresh tokens' })
   async logout(@CurrentUser() user: AuthenticatedUser) {
@@ -60,7 +45,6 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user profile' })
   async getMe(@CurrentUser() user: AuthenticatedUser) {
