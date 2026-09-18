@@ -45,7 +45,11 @@ export class SeatsController {
   @Post('generate')
   @ApiBearerAuth()
   @Roles(UserRole.ADMIN)
-  @ApiOperation({ summary: 'Auto-generate seats (Admin only)' })
+  @ApiOperation({
+    summary: 'Generate missing seats (Admin only)',
+    description:
+      'Existing seats, including inactive seats, are preserved. Returns only newly created seats in data and requested/created/skipped counts in meta. Existing seat classes are not changed.',
+  })
   generate(
     @Param('trainPublicId') trainPublicId: string,
     @Body() dto: GenerateSeatsDto,

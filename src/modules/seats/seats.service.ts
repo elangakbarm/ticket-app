@@ -1,15 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { AuditLogService } from '../../common/services/audit-log.service';
-import {
-  CreateSeatDto,
-  BulkCreateSeatsDto,
-  GenerateSeatsDto,
-} from './dto/seat.dto';
-import {
-  NotFoundException,
-  ConflictException,
-} from '../../common/exceptions/business.exception';
+import { CreateSeatDto, BulkCreateSeatsDto, GenerateSeatsDto } from './dto/seat.dto';
+import { NotFoundException, ConflictException } from '../../common/exceptions/business.exception';
 
 @Injectable()
 export class SeatsService {
@@ -58,10 +51,7 @@ export class SeatsService {
     });
 
     if (existing) {
-      throw new ConflictException(
-        'Seat already exists for this train',
-        'SEAT_EXISTS',
-      );
+      throw new ConflictException('Seat already exists for this train', 'SEAT_EXISTS');
     }
 
     const seat = await this.prisma.seat.create({
@@ -87,11 +77,7 @@ export class SeatsService {
     };
   }
 
-  async bulkCreate(
-    trainPublicId: string,
-    dto: BulkCreateSeatsDto,
-    userId: number,
-  ) {
+  async bulkCreate(trainPublicId: string, dto: BulkCreateSeatsDto, userId: number) {
     const train = await this.prisma.train.findFirst({
       where: { publicId: trainPublicId, deletedAt: null },
     });
@@ -127,11 +113,7 @@ export class SeatsService {
     };
   }
 
-  async generateSeats(
-    trainPublicId: string,
-    dto: GenerateSeatsDto,
-    userId: number,
-  ) {
+  async generateSeats(trainPublicId: string, dto: GenerateSeatsDto, userId: number) {
     const train = await this.prisma.train.findFirst({
       where: { publicId: trainPublicId, deletedAt: null },
     });
@@ -151,6 +133,39 @@ export class SeatsService {
       }
     }
 
-    return this.bulkCreate(trainPublicId, { seats: seatData }, userId);
+    // Let the unique constraint resolve duplicates, including concurrent requests.
+    // Never replace existing seats: bookings and tickets refer to their IDs.
+    return this.prisma.$transaction(async (tx) => {
+      const seats = await tx.seat.createManyAndReturn({
+        data: seatData.map((seat) => ({ ...seat, trainId: train.id })),
+        skipDuplicates: true,
+      });
+      seats.sort(
+        (a, b) =>
+          a.carriageNumber - b.carriageNumber ||
+          a.seatNumber.localeCompare(b.seatNumber, undefined, { numeric: true }),
+      );
+      const meta = {
+        requested: seatData.length,
+        created: seats.length,
+        skipped: seatData.length - seats.length,
+      };
+
+      await tx.auditLog.create({
+        data: {
+          userId,
+          action: 'SEATS_GENERATED',
+          entityType: 'Train',
+          entityPublicId: trainPublicId,
+          newData: meta,
+        },
+      });
+
+      return {
+        message: `${meta.created} seats created; ${meta.skipped} existing seats skipped`,
+        data: seats,
+        meta,
+      };
+    });
   }
 }
