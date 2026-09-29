@@ -348,6 +348,15 @@ export class BookingsService {
         );
       }
 
+      if (booking.schedule.status === ScheduleStatus.ARRIVED ||
+          booking.schedule.arrivalTime <= new Date()) {
+        throw new BusinessException(
+          'Cannot cancel booking after arrival',
+          'JOURNEY_COMPLETED',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       await tx.booking.update({
         where: { id: booking.id },
         data: {
